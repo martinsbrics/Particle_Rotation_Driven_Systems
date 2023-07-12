@@ -62,45 +62,45 @@ B_at_partivcle_pos(N)
     }
   }
   Eigen::Vector3d test=virtual_sites[0][6]-virtual_sites[0][7]; test.normalize();
-  //cout<<test.transpose()<<endl;
-  //cout<<new_vec.transpose()<<endl;
+  cout<<test.transpose()<<endl;
+  cout<<new_vec.transpose()<<endl;
   //perturbation momentum out of plane
   ty =angle1 * 2. * M_PI;
   m =Eigen::AngleAxisd(ty, new_vec);
   for(size_t j=0; j<N; j++){
     for(size_t i=0; i<N_virtual; i++)
     {
-      //cout<<virtual_sites[j][i].transpose()<<" "<<(m *virtual_sites[j][i]).transpose()<<endl;
+      cout<<virtual_sites[j][i].transpose()<<" "<<(m *virtual_sites[j][i]).transpose()<<endl;
       virtual_sites[j][i]= m *virtual_sites[j][i];
     }
   }
   for(size_t i=0; i<N; i++)
   {
     init_magnetisation[i]=m*init_magnetisation_;
-    cout<<init_magnetisation[i].transpose()<<endl;
   }
  // cout<<init_magnetisation[0].transpose()<<endl;
  // cout<<virtual_sites[0][7][2]-virtual_sites_radius[7]<<endl;
   cout<<"Angle "<<angle1<<endl;;
+  //abort();
   new_virtual_sites=virtual_sites;
   magnetisation=init_magnetisation;
   
   Eigen::Vector4d kv={0,0,1,0};
   Eigen::Quaterniond q(kv);
 
-  //std::cout << "This quaternion consists of a scalar " << q.w() << " and a vector " << std::endl << q.vec() << std::endl;
+  std::cout << "This quaternion consists of a scalar " << q.w() << " and a vector " << std::endl << q.vec() << std::endl;
 
 
 
   q.normalize();
 
-//  std::cout << "To represent rotation, we need to normalize it such that its length is " << q.norm() << std::endl;
+  std::cout << "To represent rotation, we need to normalize it such that its length is " << q.norm() << std::endl;
   Eigen::Quaterniond a = {0,1,0,0};
   //a.normalize();
-//  cout<<a.coeffs().transpose()<<" "<<a.w()<<endl;
+  cout<<a.coeffs().transpose()<<" "<<a.w()<<endl;
   Eigen::Vector3d aa={0,0,1};
   fill_Omega_quat(aa);
-//  cout<<Omega_quat*a.coeffs()<<endl;
+  cout<<Omega_quat*a.coeffs()<<endl;
   //abort();
 }
 
@@ -389,7 +389,6 @@ void Integrator::operator()(const Eigen::VectorXd& x, Eigen::VectorXd& dxdt, con
   {
     Force=mag_Force[i]*dipole_force_prefactor+/*steric_force_prefactor**/(steric_Force[i])+gravitation_force*gravitation_perfactor;
     Torque=mag_Torque[i]*dipole_torque_prefactor + ext_torque_prefactor*ext_Torque[i]+/*steric_torque_prefactor**/steric_Torque[i];
-    Torque[0]=0.0;Torque[1]=0.0;
     fill_Omega_quat(Torque);
     //std::cout<<Torque.transpose()<<endl;
 

@@ -484,9 +484,9 @@ int main(int argc, char **argv) {
     std::cout<<" here"<<std::endl;
     stringstream fname;
     
-    double omega=-0.45;
+    double omega=-0.95;
     lag=0.0;
-    double angle1=0.0;
+    double angle1=0.01;
     //double angle1=-(acos(1/omega))/(2. * M_PI);
     int Nvirtual=92;// 8 20 44 68 92
     double force_prefactor= 0.001;
@@ -501,17 +501,19 @@ int main(int argc, char **argv) {
 //       x[6*i+2]=angle[i];
 //     }
     if(file.is_open()){
-      for(size_t i=0; fabs(omega)<3/*&&stop*/; i++)
+      //for(size_t i=0; force_prefactor<2.5&&stop; i++)
       {
         vector <Eigen::Vector3d> pos;
-        omega-=0.05;
+       // omega-=0.1;
         if(N>1){
           dvec shift(2*(N-1));
-          for(size_t i2=1; i2<N; i2++){
-            shift[2*(i2-1)]=shiftx*i2;
-            shift[2*(i2-1)+1]=shifty*i2;
+          for(size_t i=1; i<N; i++){
+            shift[2*(i-1)]=shiftx*i;
+            shift[2*(i-1)+1]=shifty*i;
           }
-          cout<<"Shifts "<<shiftx<<" "<<shifty<<" "<<endl;
+          shiftx=shift[2*(N-2)]/2;
+          shifty=shift[2*(N-2)+1]/2;
+          cout<<shiftx<<" "<<shifty<<" "<<endl;
           pos.push_back(Eigen::Vector3d(-shiftx,-shifty,0.0));
           //angle.push_back(Eigen::Vector3d(0.0,0.0,0.0));
           for(size_t i=1; i<N; i++){
@@ -542,6 +544,7 @@ int main(int argc, char **argv) {
         else{
           T=1.;
         }
+          std::cout<<" here"<<std::endl;
         sys=new Integrator(N, omega,mom, alpha, komega_kv, lag,force_prefactor, angle1, Nvirtual, true);
           std::cout<<"initalizeing here1"<<std::endl;
           //sys->print_mathematica(x,"mathematica_pos");
@@ -559,13 +562,13 @@ int main(int argc, char **argv) {
 //        data[i].clear();
 //        }
 //        cout<<data.size()<<" "<<data[0].size()<<" !!!!!!!!!!!!!!"<<endl;;
-        stop=propagate(x, dxdt, data, sys, 0.01,0,100*T/*max(100*T,270.)*/,1e-12, 1e-12);
+        stop=propagate(x, dxdt, data, sys, 0.01,0,50*T/*max(100*T,270.)*/,1e-12, 1e-12);
         //stop=propagate_virtual(x, dxdt, data, sys, 0.01,0.0,10*T/*max(100*T,270.)*/,1e-12, 1e-12);
 //         cout<<data[0].size()<<" !!!!!!!!!!!!!!"<<endl;;
         res=analyze_data( data);
         ostringstream os1;
         os1<<"axtest_N_"<<N<<"_Nv_"<<Nvirtual<<"_omega_"<<omega<<"_F_"<<force_prefactor<<"_alpha_"<<alpha;
-        print_data_sigle_file(0.1,100*T, data,os1.str());
+        print_data_sigle_file(0.1,50*T, data,os1.str());
         //sys->print_mathematica(x,"mathematica_pos");
     //    sys->fill_steric_foreces_and_torques();
         //cout<< x<<endl;
@@ -583,13 +586,13 @@ int main(int argc, char **argv) {
 //           print_data_sigle_file(0.01*T,100000*T, data, fname.str());
 //         }
         if(stop){
-          file<<omega;
+          file<<force_prefactor;
           for(int i=0; i<res.size(); i++)
           {
             file<<" "<<res[i];
           }
           file<<endl;
-          //force_prefactor+=0.01;
+          force_prefactor+=0.01;
         }
         delete sys;
       }
